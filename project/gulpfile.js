@@ -8,6 +8,10 @@ gulp.task('styles', function(){
 		.pipe(gulp.dest('../public/stylesheets/'));
 });
 
+gulp.task('watch', function(){
+	gulp.watch('../app/assets/stylesheets/**/*.scss', ['styles']);
+});
+
 gulp.task('default', function(){
 	
 });
