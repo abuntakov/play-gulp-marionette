@@ -13,5 +13,4 @@ package object models {
     field.setAccessible(true)
     result + (field.getName -> field.get(obj))
   }
-
 }
