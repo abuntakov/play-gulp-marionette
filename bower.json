@@ -1,8 +1,0 @@
-{
-	"name": "play-gulp-marionette",
-	"version": "0.0.1",
-	"dependencies": {
-		"bootstrap-sass": "~3.3.5",
-		"jquery": "~2.1.4"
-	}
-}
