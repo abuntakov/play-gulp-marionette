@@ -2,7 +2,13 @@ package org.sample.models
 
 import scalikejdbc._
 
-case class Contact(id: Long = NoId, email: String, firstName: Option[String] = None, lastName: Option[String] = None)
+case class Contact(
+  id: Long = NoId,
+  email: String,
+  location: Location,
+  boundary: Boundary,
+  firstName: Option[String] = None,
+  lastName: Option[String] = None)
 
 object Contact extends SQLSyntaxSupport[Contact] with EntityWrapper {
   val c = Contact.syntax("c")

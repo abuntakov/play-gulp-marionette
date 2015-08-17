@@ -4,4 +4,6 @@ CREATE TABLE contacts (
 	,email text NOT NULL
 	,first_name text
 	,last_name text
+	,location geometry NOT NULL
+	,boundary geometry
 );
