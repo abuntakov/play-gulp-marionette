@@ -6,8 +6,17 @@ trait FieldWrapper[T] {
   def wrap(field: T): Any
 }
 
+object LocationFieldWrapper extends FieldWrapper[Location] {
+  def wrap(field: Location) = ParameterBinder[Location](
+    value = field,
+    binder = (stmt: java.sql.PreparedStatement, idx: Int) => stmt.setObject(idx, toGeometry(field))
+    )
+}
+
 trait EntityWrapper { this: SQLSyntaxSupport[_] =>
-  implicit val fieldWrappers: FieldWrappers = Map.empty
+  implicit val fieldWrappers: FieldWrappers = Map(
+    classOf[Location] -> LocationFieldWrapper
+    )
 
   type FieldWrappers = Map[Class[_], FieldWrapper[_]] 
 
