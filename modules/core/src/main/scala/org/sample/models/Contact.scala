@@ -6,7 +6,7 @@ case class Contact(
   id: Long = NoId,
   email: String,
   location: Location,
-  boundary: Boundary,
+  boundary: Option[Boundary],
   firstName: Option[String] = None,
   lastName: Option[String] = None)
 

@@ -19,7 +19,7 @@ object Application extends App {
   val contact = Contact(
     email = "test@email.com",
     location = Location(59.8944, 30.2641),
-    boundary = boundary,
+    boundary = Some(boundary),
     firstName = Some("alex"),
     lastName = null)
 

@@ -29,12 +29,18 @@ trait EntityWrapper { this: SQLSyntaxSupport[_] =>
   type FieldWrappers = Map[Class[_], FieldWrapper[_]] 
 
   def wrapEntity[T](entity: T, allowedFields: Seq[String])(implicit fieldWrappers: FieldWrappers) = {
-    convertToMap(entity).filterKeys(allowedFields.contains).filterNot(isNullable).map { case (fieldName, fieldValue) =>
-      column.field(fieldName) -> wrapField(fieldValue)
+    convertToMap(entity).filterKeys(allowedFields.contains).filterNot(isNullable).map {
+      case (fieldName, fieldValue) =>
+        val wrappedField = if(fieldValue.isInstanceOf[Option[_]]) 
+          fieldValue.asInstanceOf[Option[_]].map(wrapField) 
+        else 
+          wrapField(fieldValue)
+        
+        column.field(fieldName) -> wrappedField
     }.toArray
   }
 
-  def wrapField[T](field: T)(implicit fieldWrappers: FieldWrappers) = {
+  def wrapField[T](field: T)(implicit fieldWrappers: FieldWrappers): Any = {
     fieldWrappers.get(field.getClass).map(_.asInstanceOf[FieldWrapper[T]].wrap(field)).getOrElse(field)
   }
 
