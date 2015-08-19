@@ -1,3 +1,5 @@
 GET / controllers.Application.index
 
+PUT /contact/:id	controllers.Contacts.update(id: Long)
+
 GET /assets/*file	controllers.Assets.versioned(path="/public", file: Asset)

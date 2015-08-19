@@ -27,9 +27,18 @@ object Application extends App {
 
   logger.info("Saved with id=" + id)
 
-  val savedContact = Contact.find(id)
+  val savedContact = Contact.find(id).get
 
   logger.info(s"Found contact: $savedContact")
+  
+  val updateResult = Contact.update(savedContact.copy(email = "ERROR", firstName = Some("Jack"), lastName = Some("Smith")), id)
+
+  
+  logger.info(s"Update result: $updateResult")
+
+  val updatedContact = Contact.find(id)
+
+  logger.info(s"Updated contact: $updatedContact")
 
   DBs.closeAll()
 }

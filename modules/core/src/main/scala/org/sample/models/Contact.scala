@@ -19,13 +19,17 @@ object Contact extends SQLSyntaxSupport[Contact] with EntityWrapper {
 
   val updatableFields = extractFieldNames(classOf[Contact]) diff Seq("id", "email")
 
-  def apply(c: SyntaxProvider[Contact])(rs: WrappedResultSet): Contact = apply(c.resultName)(rs)
+  private def apply(c: SyntaxProvider[Contact])(rs: WrappedResultSet): Contact = apply(c.resultName)(rs)
 
-  def apply(c: ResultName[Contact])(rs: WrappedResultSet): Contact = autoConstruct(rs, c)
+  private def apply(c: ResultName[Contact])(rs: WrappedResultSet): Contact = autoConstruct(rs, c)
 
   def create(contact: Contact)(implicit session: DBSession = autoSession): Long = withSQL {
     insert.into(Contact).namedValues( wrapEntity(contact, creatableFields):_ * )
   }.updateAndReturnGeneratedKey().apply()
+
+  def update(contact: Contact, id: Long)(implicit session: DBSession = autoSession) = withSQL {
+    QueryDSL.update(Contact).set( wrapEntity(contact, updatableFields):_ *  ).where.eq(column.field("id"), id)
+  }.update.apply()
 
   def find(id: Long)(implicit session: DBSession = autoSession): Option[Contact] = withSQL {
     select.from(Contact as c).where.eq(c.id, id)
