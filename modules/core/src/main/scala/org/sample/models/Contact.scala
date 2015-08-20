@@ -35,3 +35,9 @@ object Contact extends SQLSyntaxSupport[Contact] with EntityWrapper {
     select.from(Contact as c).where.eq(c.id, id)
   }.map(Contact(c)).single().apply
 }
+
+object ContactValidator extends Validator[Contact] {
+  val requiredFields = Seq("email", "location")
+
+  val validators = Map.empty[String, Seq[ (String, Any) => Seq[Error] ]]
+}
