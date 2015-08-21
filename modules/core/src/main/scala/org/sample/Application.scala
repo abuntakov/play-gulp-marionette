@@ -39,6 +39,16 @@ object Application extends App {
   val updatedContact = Contact.find(id)
 
   logger.info(s"Updated contact: $updatedContact")
+  
+
+  var reqErrors = ContactValidator.validate(Contact(NoId, null, null, None), true)
+  
+  logger.info(s"Errors: $reqErrors")
+
+  reqErrors = ContactValidator.validate(Contact(NoId, null, null, None, Some("shor")), true)
+  
+  logger.info(s"Errors: $reqErrors")
+
 
   DBs.closeAll()
 }

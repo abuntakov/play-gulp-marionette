@@ -6,14 +6,6 @@ import play.api.libs.functional.syntax._
 
 object ContactJson {
 
-  case class Contactt(
-    id: Long = 1L,
-    email: String,
-    location: Location,
-    boundary: Option[Boundary],
-    firstName: Option[String] = None,
-    lastName: Option[String] = None)
-
   implicit val contactReader: Reads[Contact] = (
     ((JsPath \ "id").read[Long] or Reads.pure(null.asInstanceOf[Long])) and
     ((JsPath \ "email").read[String] or Reads.pure(null.asInstanceOf[String])) and

@@ -1,6 +1,5 @@
 package org.sample
 
-// import java.sql.ResultSet
 import scalikejdbc._
 
 package object models {
@@ -58,26 +57,46 @@ package object models {
 
   case class Error(fieldName: String, validatorName: String, message: String)
 
+  type Errors = Seq[Error]
+  
+  def NoErrors = Seq.empty[Error]
+
   trait Validator[T] {
+
     val requiredFields: Seq[String]
 
-    val validators:Map[String, Seq[ (String, Any) => Seq[Error] ]]
+    val validators:Map[String, Seq[ (String, Any) => Errors ]]
 
-    def validate(entity: T, checkForRequire: Boolean = false): Seq[Error] = {
+    def validate(entity: T, checkForRequire: Boolean = false): Errors = {
       convertToMap(entity).flatMap { 
         case (fieldName, null) if checkForRequire && requiredFields.contains(fieldName) => 
           Seq[Error](Error(fieldName, "required", "This field is required"))
-        case (fieldName, null) => Seq.empty[Error]
-        case (fieldName, None) => Seq.empty[Error]
+        case (fieldName, null) => NoErrors
+        case (fieldName, None) => NoErrors
         case (fieldName, Some(fieldValue)) => validate(fieldName,fieldValue)
         case (fieldName, fieldValue) => validate(fieldName,fieldValue)
       }.toSeq
     }
 
-    protected def validate[V](fieldName:String, fieldValue: V): Seq[Error] = {
+    protected def validate[V](fieldName:String, fieldValue: V): Errors = {
       validators.get(fieldName).map { checkers =>
         checkers.flatMap(_(fieldName, fieldValue))
-      }.getOrElse(Seq.empty[Error])
+      }.getOrElse(NoErrors)
     }
+
+    def minLength(length: Int)(fieldName: String, fieldValue: Any): Errors = {
+      if(fieldValue.asInstanceOf[String].length < length) 
+        Seq(Error(fieldName, "minLength", s"Field should be least at $length")) 
+      else 
+        NoErrors
+    }
+
+    def maxLength(length: Int)(fieldName: String, fieldValue: Any): Errors = {
+      if(fieldValue.asInstanceOf[String].length > length) 
+        Seq(Error(fieldName, "maxLength", s"Field should be max $length")) 
+      else 
+        NoErrors
+    }
+
   }
 }
