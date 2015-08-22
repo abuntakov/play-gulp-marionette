@@ -13,6 +13,8 @@ libraryDependencies ++= Seq(
   "org.postgis" % "postgis-jdbc" % "1.3.3",
   "ch.qos.logback" % "logback-classic" % "1.1.3")
 
+libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.4" % "test"
+
 seq(flywaySettings: _*)
 
 flywayUrl := "jdbc:postgresql://localhost:5432/play"

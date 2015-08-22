@@ -59,7 +59,25 @@ package object models {
 
   type Errors = Seq[Error]
   
-  def NoErrors = Seq.empty[Error]
+  def NoErrors: Errors = Seq.empty[Error]
+
+  object Validator {
+
+    def minLength(length: Int)(fieldName: String, fieldValue: Any): Errors = {
+      if(fieldValue.asInstanceOf[String].length < length) 
+        Seq(Error(fieldName, "minLength", s"Field should be least at $length")) 
+      else 
+        NoErrors
+    }
+
+    def maxLength(length: Int)(fieldName: String, fieldValue: Any): Errors = {
+      if(fieldValue.asInstanceOf[String].length > length) 
+        Seq(Error(fieldName, "maxLength", s"Field should be max $length")) 
+      else 
+        NoErrors
+    }
+
+  }
 
   trait Validator[T] {
 
@@ -83,20 +101,5 @@ package object models {
         checkers.flatMap(_(fieldName, fieldValue))
       }.getOrElse(NoErrors)
     }
-
-    def minLength(length: Int)(fieldName: String, fieldValue: Any): Errors = {
-      if(fieldValue.asInstanceOf[String].length < length) 
-        Seq(Error(fieldName, "minLength", s"Field should be least at $length")) 
-      else 
-        NoErrors
-    }
-
-    def maxLength(length: Int)(fieldName: String, fieldValue: Any): Errors = {
-      if(fieldValue.asInstanceOf[String].length > length) 
-        Seq(Error(fieldName, "maxLength", s"Field should be max $length")) 
-      else 
-        NoErrors
-    }
-
   }
 }

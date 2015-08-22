@@ -1,7 +1,6 @@
 package org.sample.models
 
 import scalikejdbc._
-// import org.sample.models.Validator.{NoErrors, Errors}
 
 case class Contact(
   id: Long = NoId,
@@ -38,9 +37,13 @@ object Contact extends SQLSyntaxSupport[Contact] with EntityWrapper {
 }
 
 object ContactValidator extends Validator[Contact] {
+  import Validator._
+
   val requiredFields = Seq("email", "location")
 
   val validators = Map[ String, Seq[(String, Any) => Errors] ](
-    "firstName" -> Seq( minLength(5) _ )
+    "firstName" -> Seq( minLength(FirstNameMinLength) _ )
     )
+
+  val FirstNameMinLength = 5
 }
