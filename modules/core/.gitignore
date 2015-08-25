@@ -6,3 +6,4 @@
 .session
 *.log
 bower_components
+.idea

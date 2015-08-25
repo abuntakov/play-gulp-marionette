@@ -18,4 +18,8 @@ class ValidatorMinLengthSpec extends UnitSpec {
     errors.head should matchPattern { case Error("field", "minLength", _) => }
   }
 
+  it should "throw ClassCastException if applied to non String" in {
+    intercept[ClassCastException] { minLength(5)("field", 12345) }
+  }
+
 }

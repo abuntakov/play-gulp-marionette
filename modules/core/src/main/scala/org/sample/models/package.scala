@@ -11,10 +11,12 @@ package object models {
     value == null
   }
 
+  /** without inheritable fields */
   def extractFieldNames(clazz: Class[_]): Seq[String] = {
     clazz.getDeclaredFields.filterNot(_.isSynthetic).map(_.getName)
   } 
 
+  /** without inheritable fields */
   def convertToMap[T](obj: T) = {
     val fields = obj.getClass.getDeclaredFields.filterNot(_.isSynthetic)
 
@@ -75,6 +77,21 @@ package object models {
         Seq(Error(fieldName, "maxLength", s"Field should be max $length")) 
       else 
         NoErrors
+    }
+
+    def regexp(pattern: java.util.regex.Pattern)(fieldName: String, fieldValue: Any): Errors = {
+      if(pattern.matcher(fieldValue.asInstanceOf[String]).matches) 
+        NoErrors
+      else
+        Seq(Error(fieldName, "regexp", s"No match with pattern"))
+    }
+
+    def email: (String, Any) => Errors = {
+      import scala.util.matching.Regex
+      val pattern = """^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$""".r.pattern
+      (fieldName: String, fieldValue: Any) => regexp(pattern)(fieldName, fieldValue).map { error => 
+        Error(fieldName, "email", "Email has invalid format")
+      }
     }
 
   }
