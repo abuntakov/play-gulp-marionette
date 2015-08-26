@@ -7,10 +7,6 @@ package object models {
 
   //------------------------ Helpers ------------------------- 
 
-  val isNullable: PartialFunction[(_, Any), Boolean] = { case (_, value) => 
-    value == null
-  }
-
   /** without inheritable fields */
   def extractFieldNames(clazz: Class[_]): Seq[String] = {
     clazz.getDeclaredFields.filterNot(_.isSynthetic).map(_.getName)
@@ -41,7 +37,7 @@ package object models {
     type FieldWrappers = Map[Class[_], FieldWrapper[_]] 
 
     def wrapEntity[T](entity: T, allowedFields: Seq[String])(implicit wrappers: FieldWrappers) = {
-      convertToMap(entity).filterKeys(allowedFields.contains).filterNot(isNullable).map {
+      convertToMap(entity).filterKeys(allowedFields.contains).map {
         case(fieldName, Some(fieldValue)) => column.field(fieldName) -> wrapField(fieldValue)
         case(fieldName, None) => column.field(fieldName) -> None
         case(fieldName, fieldValue) => column.field(fieldName) -> wrapField(fieldValue)
@@ -100,17 +96,19 @@ package object models {
 
     val requiredFields: Seq[String]
 
-    val validators:Map[String, Seq[ (String, Any) => Errors ]]
+    val validators: Map[String, Seq[ (String, Any) => Errors ]]
 
-    def validate(entity: T, checkForRequire: Boolean = false): Errors = {
-      convertToMap(entity).flatMap { 
-        case (fieldName, null) if checkForRequire && requiredFields.contains(fieldName) => 
-          Seq[Error](Error(fieldName, "required", "This field is required"))
-        case (fieldName, null) => NoErrors
+    def validate(entity: T, definedFields: Seq[String], checkForRequire: Boolean = false): Errors = {
+      val requireErrors = if(checkForRequire)
+        (requiredFields diff definedFields).map( Error(_, "required", "This field is required") )
+      else
+        NoErrors
+
+      convertToMap(entity).filterKeys(definedFields.contains).flatMap { 
         case (fieldName, None) => NoErrors
         case (fieldName, Some(fieldValue)) => validate(fieldName,fieldValue)
         case (fieldName, fieldValue) => validate(fieldName,fieldValue)
-      }.toSeq
+      }.toSeq ++ requireErrors
     }
 
     protected def validate[V](fieldName:String, fieldValue: V): Errors = {

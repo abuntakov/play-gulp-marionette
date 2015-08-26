@@ -1,7 +1,8 @@
 package controllers.converters
 
 import org.sample.models.{Location, Boundary, Contact}
-import play.api.libs.json.{Json, Reads, JsPath}
+import play.api.data.validation.ValidationError
+import play.api.libs.json._
 import play.api.libs.functional.syntax._
 
 object ContactJson {
@@ -14,4 +15,13 @@ object ContactJson {
     ((JsPath \ "firstName").read(Reads.optionNoError[String]) or Reads.pure(null.asInstanceOf[Option[String]])) and
     ((JsPath \ "lastName").read(Reads.optionNoError[String]) or Reads.pure(null.asInstanceOf[Option[String]]))
   )(Contact.apply _)
+
+
+  implicit val contactWithFieldsReader: Reads[(Contact, Seq[String])] = new Reads[(Contact, Seq[String])] {
+    override def reads(json: JsValue): JsResult[(Contact, Seq[String])] = {
+      json.validate[Contact].map { contact =>
+        (contact, json.asInstanceOf[JsObject].keys.toSeq)
+      }
+    }
+  }
 }

@@ -23,7 +23,7 @@ object Application extends App {
     firstName = Some("alex"),
     lastName = null)
 
-  val id = Contact.create( contact )
+  val id = Contact.create( contact, Contact.entityFields diff Seq("lastName") )
 
   logger.info("Saved with id=" + id)
 
@@ -41,11 +41,11 @@ object Application extends App {
   logger.info(s"Updated contact: $updatedContact")
   
 
-  var reqErrors = ContactValidator.validate(Contact(NoId, null, null, None), true)
+  var reqErrors = ContactValidator.validate(Contact(NoId, null, null, None), Contact.entityFields diff Seq("id", "email", "location"), true)
   
   logger.info(s"Errors: $reqErrors")
 
-  reqErrors = ContactValidator.validate(Contact(NoId, null, null, None, Some("shor")), true)
+  reqErrors = ContactValidator.validate(Contact(NoId, null, null, None, Some("shor")), Contact.entityFields diff Seq("id", "email", "location"), true)
   
   logger.info(s"Errors: $reqErrors")
 

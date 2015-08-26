@@ -15,20 +15,22 @@ object Contact extends SQLSyntaxSupport[Contact] with EntityWrapper {
 
   override val tableName = "contacts"
 
-  val creatableFields = extractFieldNames(classOf[Contact]) diff Seq("id")
+  val entityFields = extractFieldNames(classOf[Contact])
 
-  val updatableFields = extractFieldNames(classOf[Contact]) diff Seq("id", "email")
+  val creatableFields = entityFields diff Seq("id")
+
+  val updatableFields = entityFields diff Seq("id", "email")
 
   private def apply(c: SyntaxProvider[Contact])(rs: WrappedResultSet): Contact = apply(c.resultName)(rs)
 
   private def apply(c: ResultName[Contact])(rs: WrappedResultSet): Contact = autoConstruct(rs, c)
 
-  def create(contact: Contact)(implicit session: DBSession = autoSession): Long = withSQL {
-    insert.into(Contact).namedValues( wrapEntity(contact, creatableFields):_ * )
+  def create(contact: Contact, definedFields: Seq[String] = entityFields)(implicit session: DBSession = autoSession): Long = withSQL {
+    insert.into(Contact).namedValues( wrapEntity(contact, definedFields intersect creatableFields):_ * )
   }.updateAndReturnGeneratedKey().apply()
 
-  def update(contact: Contact, id: Long)(implicit session: DBSession = autoSession) = withSQL {
-    QueryDSL.update(Contact).set( wrapEntity(contact, updatableFields):_ *  ).where.eq(column.field("id"), id)
+  def update(contact: Contact, id: Long, definedFields: Seq[String] = entityFields)(implicit session: DBSession = autoSession) = withSQL {
+    QueryDSL.update(Contact).set( wrapEntity(contact, definedFields intersect updatableFields):_ *  ).where.eq(column.field("id"), id)
   }.update.apply()
 
   def find(id: Long)(implicit session: DBSession = autoSession): Option[Contact] = withSQL {
