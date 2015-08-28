@@ -1,0 +1,7 @@
+dbtest:
+   image: mdillon/postgis
+   ports:
+      - "5433:5432"
+   environment:
+      - POSTGRES_DB=play-test
+      - POSTGRES_PASSWORD=secret

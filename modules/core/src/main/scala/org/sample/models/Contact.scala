@@ -10,8 +10,12 @@ case class Contact(
   firstName: Option[String] = None,
   lastName: Option[String] = None)
 
-object Contact extends SQLSyntaxSupport[Contact] with EntityWrapper {
-  val c = Contact.syntax("c")
+object Contact extends SQLSyntaxSupport[Contact] with EntityWrapper[Contact] {
+  //val c = Contact.syntax("c")
+
+  val resultName = Contact.syntax("c")
+
+  def tableAlias = Contact as resultName
 
   override val tableName = "contacts"
 
@@ -21,21 +25,8 @@ object Contact extends SQLSyntaxSupport[Contact] with EntityWrapper {
 
   val updatableFields = entityFields diff Seq("id", "email")
 
-  private def apply(c: SyntaxProvider[Contact])(rs: WrappedResultSet): Contact = apply(c.resultName)(rs)
+  protected def apply(c: ResultName[Contact])(rs: WrappedResultSet): Contact = autoConstruct(rs, c)
 
-  private def apply(c: ResultName[Contact])(rs: WrappedResultSet): Contact = autoConstruct(rs, c)
-
-  def create(contact: Contact, definedFields: Seq[String] = entityFields)(implicit session: DBSession = autoSession): Long = withSQL {
-    insert.into(Contact).namedValues( wrapEntity(contact, definedFields intersect creatableFields):_ * )
-  }.updateAndReturnGeneratedKey().apply()
-
-  def update(contact: Contact, id: Long, definedFields: Seq[String] = entityFields)(implicit session: DBSession = autoSession) = withSQL {
-    QueryDSL.update(Contact).set( wrapEntity(contact, definedFields intersect updatableFields):_ *  ).where.eq(column.field("id"), id)
-  }.update.apply()
-
-  def find(id: Long)(implicit session: DBSession = autoSession): Option[Contact] = withSQL {
-    select.from(Contact as c).where.eq(c.id, id)
-  }.map(Contact(c)).single().apply
 }
 
 object ContactValidator extends Validator[Contact] {
@@ -43,9 +34,14 @@ object ContactValidator extends Validator[Contact] {
 
   val requiredFields = Seq("email", "location")
 
+  val FirstNameMinLength = 5
+
+
+
   val validators = Map[ String, Seq[(String, Any) => Errors] ](
-    "firstName" -> Seq( minLength(FirstNameMinLength) _ )
+    "firstName" -> Seq( minLength(FirstNameMinLength) _ ),
+    "email" -> Seq( unique(Contact) _ )
     )
 
-  val FirstNameMinLength = 5
+
 }

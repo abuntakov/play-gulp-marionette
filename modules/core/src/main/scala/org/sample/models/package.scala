@@ -28,7 +28,18 @@ package object models {
     def wrap(field: T): Any
   }
 
-  trait EntityWrapper { this: SQLSyntaxSupport[_] =>
+  trait EntityWrapper[T] { this: SQLSyntaxSupport[_] =>
+    def tableAlias: TableAsAliasSQLSyntax
+
+    val resultName: SyntaxProvider[T]
+
+    val entityFields: Seq[String]
+
+    val creatableFields: Seq[String]
+
+    val updatableFields: Seq[String]
+
+
     implicit val wrappers: FieldWrappers = Map(
       classOf[Location] -> LocationFieldWrapper,
       classOf[Boundary] -> BoundaryFieldWrapper
@@ -36,7 +47,7 @@ package object models {
 
     type FieldWrappers = Map[Class[_], FieldWrapper[_]] 
 
-    def wrapEntity[T](entity: T, allowedFields: Seq[String])(implicit wrappers: FieldWrappers) = {
+    def wrapEntity(entity: T, allowedFields: Seq[String])(implicit wrappers: FieldWrappers) = {
       convertToMap(entity).filterKeys(allowedFields.contains).map {
         case(fieldName, Some(fieldValue)) => column.field(fieldName) -> wrapField(fieldValue)
         case(fieldName, None) => column.field(fieldName) -> None
@@ -44,11 +55,41 @@ package object models {
       }.toArray
     }
 
-    def wrapField[T](field: T)(implicit wrappers: FieldWrappers): Any = {
+    def wrapField[F](field: F)(implicit wrappers: FieldWrappers): Any = {
       wrappers.get(field.getClass).map { fieldValue => 
-        fieldValue.asInstanceOf[FieldWrapper[T]].wrap(field)
+        fieldValue.asInstanceOf[FieldWrapper[F]].wrap(field)
       }.getOrElse(field)
     }
+
+    protected def apply(c: SyntaxProvider[T])(rs: WrappedResultSet): T = apply(c.resultName)(rs)
+
+    protected def apply(c: ResultName[T])(rs: WrappedResultSet): T
+
+    def create(entity: T, definedFields: Seq[String] = entityFields)(implicit session: DBSession = autoSession): Long = withSQL {
+      insert.into(this).namedValues( wrapEntity(entity, definedFields intersect creatableFields):_ * )
+    }.updateAndReturnGeneratedKey().apply()
+
+    def update(entity: T, id: Long, definedFields: Seq[String] = entityFields)(implicit session: DBSession = autoSession) = withSQL {
+      QueryDSL.update(this).set( wrapEntity(entity, definedFields intersect updatableFields):_ *  ).where.eq(column.field("id"), id)
+    }.update().apply()
+
+    def count()(implicit session: DBSession = ReadOnlyAutoSession): Long = withSQL {
+      select(sqls.count).from(tableAlias)
+    }.map(rs => rs.long(1)).single().apply().get
+
+    def countBy(where: SQLSyntax)(implicit session: DBSession = ReadOnlyAutoSession): Long = withSQL {
+      select(sqls.count).from(tableAlias).where.append(sqls"${where}")
+    }.map(rs => rs.long(1)).single().apply().get
+
+    def find(id: Long)(implicit session: DBSession = ReadOnlyAutoSession): Option[T] = withSQL {
+      select.from(tableAlias).where.eq(column.id, id)
+    }.map(this(resultName)).single().apply
+
+    def findBy(where: SQLSyntax)(implicit session: DBSession = ReadOnlyAutoSession): List[T] = withSQL {
+      select.from(tableAlias).where.append(sqls"${where}")
+    }.map(this(resultName)).list().apply()
+
+
   }
 
   //-------------------------- Validator --------------------------
@@ -83,12 +124,19 @@ package object models {
     }
 
     def email: (String, Any) => Errors = {
-      import scala.util.matching.Regex
       val pattern = """^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$""".r.pattern
       (fieldName: String, fieldValue: Any) => regexp(pattern)(fieldName, fieldValue).map { error => 
         Error(fieldName, "email", "Email has invalid format")
       }
     }
+    def unique[T](entityWrapper: EntityWrapper[T])(fieldName: String, fieldValue:Any): Errors = DB readOnly { implicit session =>
+      entityWrapper.countBy(sqls.eq(entityWrapper.resultName.field(fieldName), fieldValue)) match {
+        case 0 => NoErrors
+        case _ => Seq( Error(fieldName, "unique", "This field should be unique") )
+      }
+    }
+
+
 
   }
 
@@ -104,7 +152,7 @@ package object models {
       else
         NoErrors
 
-      convertToMap(entity).filterKeys(definedFields.contains).flatMap { 
+      convertToMap(entity).filterKeys(definedFields.contains).flatMap {
         case (fieldName, None) => NoErrors
         case (fieldName, Some(fieldValue)) => validate(fieldName,fieldValue)
         case (fieldName, fieldValue) => validate(fieldName,fieldValue)
