@@ -116,15 +116,15 @@ package object models {
         NoErrors
     }
 
-    def regexp(pattern: java.util.regex.Pattern)(fieldName: String, fieldValue: Any): Errors = {
-      if(pattern.matcher(fieldValue.asInstanceOf[String]).matches) 
-        NoErrors
-      else
-        Seq(Error(fieldName, "regexp", s"No match with pattern"))
+    def regexp(pattern: scala.util.matching.Regex)(fieldName: String, fieldValue: Any): Errors = {
+      fieldValue.asInstanceOf[String] match {
+        case pattern(_) => NoErrors
+        case _ => Seq(Error(fieldName, "regexp", "No match with pattern"))
+      }
     }
 
     def email: (String, Any) => Errors = {
-      val pattern = """^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$""".r.pattern
+      val pattern = """^([a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4})$""".r
       (fieldName: String, fieldValue: Any) => regexp(pattern)(fieldName, fieldValue).map { error => 
         Error(fieldName, "email", "Email has invalid format")
       }
