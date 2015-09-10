@@ -5,18 +5,18 @@ import scalikejdbc._
 package object models {
   val NoId = -1L
 
-  //------------------------ Helpers ------------------------- 
+  //------------------------ Helpers -------------------------
 
   /** without inheritable fields */
   def extractFieldNames(clazz: Class[_]): Seq[String] = {
     clazz.getDeclaredFields.filterNot(_.isSynthetic).map(_.getName)
-  } 
+  }
 
   /** without inheritable fields */
   def convertToMap[T](obj: T) = {
     val fields = obj.getClass.getDeclaredFields.filterNot(_.isSynthetic)
 
-    (Map[String, Any]() /: fields) { (result, field) => 
+    (Map[String, Any]() /: fields) { (result, field) =>
       field.setAccessible(true)
       result + (field.getName -> field.get(obj))
     }
@@ -45,7 +45,7 @@ package object models {
       classOf[Boundary] -> BoundaryFieldWrapper
       )
 
-    type FieldWrappers = Map[Class[_], FieldWrapper[_]] 
+    type FieldWrappers = Map[Class[_], FieldWrapper[_]]
 
     def wrapEntity(entity: T, allowedFields: Seq[String])(implicit wrappers: FieldWrappers) = {
       convertToMap(entity).filterKeys(allowedFields.contains).map {
@@ -56,7 +56,7 @@ package object models {
     }
 
     def wrapField[F](field: F)(implicit wrappers: FieldWrappers): Any = {
-      wrappers.get(field.getClass).map { fieldValue => 
+      wrappers.get(field.getClass).map { fieldValue =>
         fieldValue.asInstanceOf[FieldWrapper[F]].wrap(field)
       }.getOrElse(field)
     }
@@ -97,22 +97,22 @@ package object models {
   case class Error(fieldName: String, validatorName: String, message: String)
 
   type Errors = Seq[Error]
-  
+
   def NoErrors: Errors = Seq.empty[Error]
 
   object Validator {
 
     def minLength(length: Int)(fieldName: String, fieldValue: Any): Errors = {
-      if(fieldValue.asInstanceOf[String].length < length) 
-        Seq(Error(fieldName, "minLength", s"Field should be least at $length")) 
-      else 
+      if(fieldValue.asInstanceOf[String].length < length)
+        Seq(Error(fieldName, "minLength", s"Field should be least at $length"))
+      else
         NoErrors
     }
 
     def maxLength(length: Int)(fieldName: String, fieldValue: Any): Errors = {
-      if(fieldValue.asInstanceOf[String].length > length) 
-        Seq(Error(fieldName, "maxLength", s"Field should be max $length")) 
-      else 
+      if(fieldValue.asInstanceOf[String].length > length)
+        Seq(Error(fieldName, "maxLength", s"Field should be max $length"))
+      else
         NoErrors
     }
 
@@ -125,7 +125,7 @@ package object models {
 
     def email: (String, Any) => Errors = {
       val pattern = """^([a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4})$""".r
-      (fieldName: String, fieldValue: Any) => regexp(pattern)(fieldName, fieldValue).map { error => 
+      (fieldName: String, fieldValue: Any) => regexp(pattern)(fieldName, fieldValue).map { error =>
         Error(fieldName, "email", "Email has invalid format")
       }
     }
