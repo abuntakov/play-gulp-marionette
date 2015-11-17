@@ -15,8 +15,8 @@ name := "play-web"
 scalaVersion := "2.11.7"
 
 libraryDependencies ++= Seq(
-  "org.scalikejdbc" %% "scalikejdbc-play-initializer" % "2.4.0",
-  "org.flywaydb" %% "flyway-play" % "2.1.0",
+  "org.scalikejdbc" %% "scalikejdbc-play-initializer" % "2.4.2",
+  "org.flywaydb" %% "flyway-play" % "2.2.0",
   "ch.qos.logback" % "logback-classic" % "1.1.3")
 
 lazy val root = (project in file("."))
