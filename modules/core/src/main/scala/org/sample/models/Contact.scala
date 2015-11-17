@@ -8,10 +8,17 @@ case class Contact(
   location: Location,
   boundary: Option[Boundary] = None,
   firstName: Option[String] = None,
-  lastName: Option[String] = None)
+  lastName: Option[String] = None,
+  numbers: List[Int] = List.empty[Int]
+                  )
 
 object Contact extends SQLSyntaxSupport[Contact] with EntityWrapper[Contact] {
-  //val c = Contact.syntax("c")
+
+  implicit val wrappers: FieldWrappers = Map(
+    "location" -> LocationFieldWrapper,
+    "boundary" -> BoundaryFieldWrapper,
+    "numbers" -> IntListFieldWrapper
+  )
 
   val resultName = Contact.syntax("c")
 

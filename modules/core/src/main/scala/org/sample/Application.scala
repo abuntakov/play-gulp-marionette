@@ -21,7 +21,8 @@ object Application extends App {
     location = Location(59.8944, 30.2641),
     boundary = Some(boundary),
     firstName = Some("alex"),
-    lastName = null)
+    lastName = null,
+    numbers = List(1,2,4))
 
   val id = Contact.create( contact, Contact.entityFields diff Seq("lastName") )
 
