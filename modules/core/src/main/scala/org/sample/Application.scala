@@ -2,6 +2,7 @@ package org.sample
 
 import org.slf4j.LoggerFactory
 import org.sample.models._
+import play.api.libs.json.{JsValue, Json}
 import scalikejdbc._
 import scalikejdbc.config._
 
@@ -22,7 +23,9 @@ object Application extends App {
     boundary = Some(boundary),
     firstName = Some("alex"),
     lastName = null,
-    numbers = List(1,2,4))
+    numbers = List(1,2,4),
+    categories = Some( Json.obj("foo" -> "bar", "x" -> 5) )
+  )
 
   val id = Contact.create( contact, Contact.entityFields diff Seq("lastName") )
 

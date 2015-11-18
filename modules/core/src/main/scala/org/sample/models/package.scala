@@ -2,6 +2,8 @@ package org.sample
 
 import java.sql.ResultSet
 
+import org.postgresql.util.PGobject
+import play.api.libs.json.{Json, JsValue}
 import scalikejdbc._
 
 package object models {
@@ -24,11 +26,7 @@ package object models {
     }
   }
 
-  //-------------------------- Wrapper --------------------------
-
-  trait FieldWrapper[T] {
-    def wrap(field: T): Any
-  }
+  //------------------------ Type binders ----------------------
 
   implicit val intListTypeBinder: TypeBinder[List[Int]] = new TypeBinder[List[Int]] {
     override def apply(rs: ResultSet, columnIndex: Int): List[Int] = {
@@ -47,11 +45,43 @@ package object models {
     }
   }
 
+  implicit val jsonTypeBinder: TypeBinder[JsValue] = new TypeBinder[JsValue] {
+    override def apply(rs: ResultSet, columnIndex: Int): JsValue = {
+      rowToJsValue(rs.getObject(columnIndex).asInstanceOf[PGobject])
+    }
+
+    override def apply(rs: ResultSet, columnLabel: String): JsValue = {
+      rowToJsValue(rs.getObject(columnLabel).asInstanceOf[PGobject])
+    }
+
+    private def rowToJsValue(pgObj: PGobject) = {
+      Json.parse(pgObj.getValue)
+    }
+  }
+
+  //-------------------------- Wrapper --------------------------
+
+  trait FieldWrapper[T] {
+    def wrap(field: T): Any
+  }
+
   object IntListFieldWrapper extends FieldWrapper[List[Int]] {
     def wrap(field: List[Int]) = ParameterBinder[List[Int]](
       value = field,
       binder = (stmt: java.sql.PreparedStatement, idx: Int) =>
         stmt.setArray(idx, stmt.getConnection.createArrayOf("integer", field.map(new Integer(_)).toArray))
+    )
+  }
+
+  object JsonFieldWrapper extends FieldWrapper[JsValue] {
+    def wrap(field: JsValue) = ParameterBinder[JsValue](
+      value = field,
+      binder = (stmt: java.sql.PreparedStatement, idx: Int) => {
+        val jsonObject = new PGobject()
+        jsonObject.setType("json")
+        jsonObject.setValue(Json.stringify(field))
+        stmt.setObject(idx, jsonObject)
+      }
     )
   }
 

@@ -1,6 +1,7 @@
 package org.sample.models
 
 import org.sample.DbUnitSpec
+import play.api.libs.json.Json
 import scalikejdbc._
 import scalikejdbc.config._
 import scalikejdbc.scalatest.AutoRollback
@@ -27,7 +28,8 @@ class ContactSpec extends DbUnitSpec with AutoRollback {
       boundary = Some(Boundary( Location(59.862700, 30.308542), Location(59.862786, 30.354719), Location(59.839421, 30.320387), Location(59.858907, 30.283480) )),
       firstName = Some("Jack"),
       lastName = Some("Black"),
-      numbers = List(4,6)
+      numbers = List(4,6),
+      categories = Some( Json.arr( Json.obj("name" -> "category1", "id" -> 1), Json.obj("name" -> "category2", "id" -> 2) ) )
       )
 
     val id: Long = Contact.create(contact)

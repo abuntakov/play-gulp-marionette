@@ -7,4 +7,5 @@ CREATE TABLE contacts (
 	,location geometry NOT NULL
 	,boundary geometry
 	,numbers integer[] NOT NULL
+	,categories json
 );

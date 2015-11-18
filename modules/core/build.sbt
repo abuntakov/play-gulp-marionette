@@ -11,6 +11,7 @@ libraryDependencies ++= Seq(
   "joda-time" % "joda-time" % "2.9",
   "org.postgresql" % "postgresql" % "9.4-1200-jdbc41",
   "org.postgis" % "postgis-jdbc" % "1.3.3",
+  "com.typesafe.play" %% "play-json" % "2.4.3",
   "ch.qos.logback" % "logback-classic" % "1.1.3")
 
 libraryDependencies ++= Seq(
