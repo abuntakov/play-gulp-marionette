@@ -6,7 +6,7 @@ import play.api.mvc.{Action, Controller}
 import play.api.libs.json.{JsObject, JsSuccess}
 import play.api.Logger
 
-object Contacts extends Controller {
+class Contacts extends Controller {
   val logger = Logger(this.getClass)
 
   def update(id: Long) = Action(parse.json) { implicit request => 
