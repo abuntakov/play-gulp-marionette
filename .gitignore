@@ -7,3 +7,5 @@
 *.log
 bower_components
 .idea/
+/modules/core/target
+/modules/core/project/target
