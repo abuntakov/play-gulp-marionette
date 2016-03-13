@@ -13,7 +13,9 @@ object ContactJson {
     ((JsPath \ "location").read[Location] or Reads.pure(null.asInstanceOf[Location])) and
     ((JsPath \ "boundary").read(Reads.optionNoError[Boundary]) or Reads.pure(null.asInstanceOf[Option[Boundary]])) and
     ((JsPath \ "firstName").read(Reads.optionNoError[String]) or Reads.pure(null.asInstanceOf[Option[String]])) and
-    ((JsPath \ "lastName").read(Reads.optionNoError[String]) or Reads.pure(null.asInstanceOf[Option[String]]))
+    ((JsPath \ "lastName").read(Reads.optionNoError[String]) or Reads.pure(null.asInstanceOf[Option[String]])) and
+    ((JsPath \ "numbers").read[List[Int]] or Reads.pure(null.asInstanceOf[List[Int]])) and
+    ((JsPath \ "categories").read(Reads.optionNoError[JsValue]) or Reads.pure(null.asInstanceOf[Option[JsValue]]))
   )(Contact.apply _)
 
 

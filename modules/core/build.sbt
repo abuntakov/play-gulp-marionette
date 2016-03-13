@@ -13,11 +13,15 @@ libraryDependencies ++= Seq(
   "org.postgis" % "postgis-jdbc" % "1.3.3",
   "ch.qos.logback" % "logback-classic" % "1.1.6")
 
+libraryDependencies += "com.typesafe.play" %% "play-json" % "2.5.0"
+
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "2.2.6" % "test",
   "org.scalikejdbc" %% "scalikejdbc-test" % "2.3.5" % "test")
 
-seq(flywaySettings: _*)
+libraryDependencies ~= { _.map(_.exclude("org.slf4j", "slf4j-simple")) }
+
+Seq(flywaySettings: _*)
 
 flywayUrl := "jdbc:postgresql://localhost:5433/play-test"
 

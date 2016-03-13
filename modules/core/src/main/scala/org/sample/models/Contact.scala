@@ -1,5 +1,6 @@
 package org.sample.models
 
+import play.api.libs.json.JsValue
 import scalikejdbc._
 
 case class Contact(
@@ -8,10 +9,19 @@ case class Contact(
   location: Location,
   boundary: Option[Boundary] = None,
   firstName: Option[String] = None,
-  lastName: Option[String] = None)
+  lastName: Option[String] = None,
+  numbers: List[Int] = List.empty[Int],
+  categories: Option[JsValue] = None
+                  )
 
 object Contact extends SQLSyntaxSupport[Contact] with EntityWrapper[Contact] {
-  //val c = Contact.syntax("c")
+
+  implicit val wrappers: FieldWrappers = Map(
+    "location" -> LocationFieldWrapper,
+    "boundary" -> BoundaryFieldWrapper,
+    "numbers" -> IntListFieldWrapper,
+    "categories" -> JsonFieldWrapper
+  )
 
   val resultName = Contact.syntax("c")
 

@@ -1,5 +1,9 @@
 package org.sample
 
+import java.sql.ResultSet
+
+import org.postgresql.util.PGobject
+import play.api.libs.json.{Json, JsValue}
 import scalikejdbc._
 
 package object models {
@@ -22,10 +26,63 @@ package object models {
     }
   }
 
+  //------------------------ Type binders ----------------------
+
+  implicit val intListTypeBinder: TypeBinder[List[Int]] = new TypeBinder[List[Int]] {
+    override def apply(rs: ResultSet, columnIndex: Int): List[Int] = {
+      rowToIntList(rs.getArray(columnIndex))
+    }
+
+    override def apply(rs: ResultSet, columnLabel: String): List[Int] = {
+      rowToIntList(rs.getArray(columnLabel))
+    }
+
+    private def rowToIntList(arr: java.sql.Array) = {
+      Option(arr.getArray().asInstanceOf[Array[Integer]]) match  {
+        case Some(values) => values.map(_.toInt).toList
+        case _ => List.empty[Int]
+      }
+    }
+  }
+
+  implicit val jsonTypeBinder: TypeBinder[JsValue] = new TypeBinder[JsValue] {
+    override def apply(rs: ResultSet, columnIndex: Int): JsValue = {
+      rowToJsValue(rs.getObject(columnIndex).asInstanceOf[PGobject])
+    }
+
+    override def apply(rs: ResultSet, columnLabel: String): JsValue = {
+      rowToJsValue(rs.getObject(columnLabel).asInstanceOf[PGobject])
+    }
+
+    private def rowToJsValue(pgObj: PGobject) = {
+      Json.parse(pgObj.getValue)
+    }
+  }
+
   //-------------------------- Wrapper --------------------------
 
   trait FieldWrapper[T] {
     def wrap(field: T): Any
+  }
+
+  object IntListFieldWrapper extends FieldWrapper[List[Int]] {
+    def wrap(field: List[Int]) = ParameterBinder[List[Int]](
+      value = field,
+      binder = (stmt: java.sql.PreparedStatement, idx: Int) =>
+        stmt.setArray(idx, stmt.getConnection.createArrayOf("integer", field.map(new Integer(_)).toArray))
+    )
+  }
+
+  object JsonFieldWrapper extends FieldWrapper[JsValue] {
+    def wrap(field: JsValue) = ParameterBinder[JsValue](
+      value = field,
+      binder = (stmt: java.sql.PreparedStatement, idx: Int) => {
+        val jsonObject = new PGobject()
+        jsonObject.setType("json")
+        jsonObject.setValue(Json.stringify(field))
+        stmt.setObject(idx, jsonObject)
+      }
+    )
   }
 
   trait EntityWrapper[T] { this: SQLSyntaxSupport[_] =>
@@ -39,26 +96,20 @@ package object models {
 
     val updatableFields: Seq[String]
 
+    implicit val wrappers: FieldWrappers
 
-    implicit val wrappers: FieldWrappers = Map(
-      classOf[Location] -> LocationFieldWrapper,
-      classOf[Boundary] -> BoundaryFieldWrapper
-      )
-
-    type FieldWrappers = Map[Class[_], FieldWrapper[_]]
+    type FieldWrappers = Map[String, FieldWrapper[_]]
 
     def wrapEntity(entity: T, allowedFields: Seq[String])(implicit wrappers: FieldWrappers) = {
       convertToMap(entity).filterKeys(allowedFields.contains).map {
-        case(fieldName, Some(fieldValue)) => column.field(fieldName) -> wrapField(fieldValue)
+        case(fieldName, Some(fieldValue)) => column.field(fieldName) -> wrapField(fieldName, fieldValue)
         case(fieldName, None) => column.field(fieldName) -> None
-        case(fieldName, fieldValue) => column.field(fieldName) -> wrapField(fieldValue)
+        case(fieldName, fieldValue) => column.field(fieldName) -> wrapField(fieldName, fieldValue)
       }.toArray
     }
 
-    def wrapField[F](field: F)(implicit wrappers: FieldWrappers): Any = {
-      wrappers.get(field.getClass).map { fieldValue =>
-        fieldValue.asInstanceOf[FieldWrapper[F]].wrap(field)
-      }.getOrElse(field)
+    def wrapField[F](fieldName: String, fieldValue: F)(implicit wrappers: FieldWrappers): Any = {
+      wrappers.get(fieldName).map(_.asInstanceOf[FieldWrapper[F]].wrap(fieldValue)).getOrElse(fieldValue)
     }
 
     protected def apply(c: SyntaxProvider[T])(rs: WrappedResultSet): T = apply(c.resultName)(rs)
@@ -91,6 +142,8 @@ package object models {
 
 
   }
+
+
 
   //-------------------------- Validator --------------------------
 

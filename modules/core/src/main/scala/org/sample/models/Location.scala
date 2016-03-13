@@ -34,7 +34,6 @@ object Location {
 object LocationFieldWrapper extends FieldWrapper[Location] {
   def wrap(field: Location) = ParameterBinder[Location](
     value = field,
-    binder = (stmt: java.sql.PreparedStatement, idx: Int) => 
-      stmt.setObject(idx, Location.toGeometry(field))
-    )
+    binder = (stmt: java.sql.PreparedStatement, idx: Int) => stmt.setObject(idx, Location.toGeometry(field))
+  )
 }

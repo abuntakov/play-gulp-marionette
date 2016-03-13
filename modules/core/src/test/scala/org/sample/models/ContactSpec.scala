@@ -1,6 +1,7 @@
 package org.sample.models
 
 import org.sample.DbUnitSpec
+import play.api.libs.json.Json
 import scalikejdbc._
 import scalikejdbc.config._
 import scalikejdbc.scalatest.AutoRollback
@@ -12,8 +13,8 @@ class ContactSpec extends DbUnitSpec with AutoRollback {
 
   override def fixture(implicit session: DBSession) {
     sql"""
-      insert into contacts values 
-      (1, ${"john@gmail.com"}, ${"john"}, ${"smith"}, St_GeomFromText(${"POINT(30.12 59.23)"}, 4326), NULL)
+      insert into contacts(id,email,first_name,last_name,location,boundary,numbers) values
+      (1, ${"john@gmail.com"}, ${"john"}, ${"smith"}, St_GeomFromText(${"POINT(30.12 59.23)"}, 4326), NULL, '{1,2,8}')
     """.update().apply()
   }
 
@@ -26,7 +27,9 @@ class ContactSpec extends DbUnitSpec with AutoRollback {
       location = Location(59.2392, 32.2525),
       boundary = Some(Boundary( Location(59.862700, 30.308542), Location(59.862786, 30.354719), Location(59.839421, 30.320387), Location(59.858907, 30.283480) )),
       firstName = Some("Jack"),
-      lastName = Some("Black")
+      lastName = Some("Black"),
+      numbers = List(4,6),
+      categories = Some( Json.arr( Json.obj("name" -> "category1", "id" -> 1), Json.obj("name" -> "category2", "id" -> 2) ) )
       )
 
     val id: Long = Contact.create(contact)
@@ -36,6 +39,7 @@ class ContactSpec extends DbUnitSpec with AutoRollback {
     savedContact.id shouldBe id
     savedContact.location shouldBe contact.location
     savedContact.boundary shouldBe contact.boundary
+    savedContact.numbers shouldBe contact.numbers
     savedContact shouldBe contact.copy(id = id)
   }
 

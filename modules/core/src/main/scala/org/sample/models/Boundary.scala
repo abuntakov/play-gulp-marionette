@@ -36,7 +36,6 @@ object Boundary {
 object BoundaryFieldWrapper extends FieldWrapper[Boundary] {
   def wrap(field: Boundary) = ParameterBinder[Boundary](
     value = field,
-    binder = (stmt: java.sql.PreparedStatement, idx: Int) => 
-      stmt.setObject(idx, Boundary.toGeometry(field))
-    )
+    binder = (stmt: java.sql.PreparedStatement, idx: Int) => stmt.setObject(idx, Boundary.toGeometry(field))
+  )
 }
