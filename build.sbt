@@ -1,7 +1,7 @@
-import Gulp._
+import Webpack._
 import play.sbt.PlayImport.PlayKeys.playRunHooks
 
-playRunHooks <+= baseDirectory.map(base => Gulp(base / "project"))
+playRunHooks += Webpack(baseDirectory.value)
 
 lazy val commonSettings = Seq(
   organization := "org.sample",

@@ -1,0 +1,7 @@
+$font-color: #ff0023;
+
+.container {
+	& h1 {
+		color: $font-color;
+	}
+}

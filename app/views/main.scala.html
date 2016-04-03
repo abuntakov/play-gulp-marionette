@@ -1,51 +1,22 @@
 @()
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title></title>
-	<link rel="stylesheet" href='@routes.Assets.versioned("stylesheets/styles.css")'>
+	<title>Hello world</title>
+	<link rel="stylesheet" href='@routes.Assets.versioned("styles.css")'>
 </head>
 <body>
 	<div class="container">
-		<div class="col-xs-6" id="contact-list">
-			Left
-		</div>
-		<div class="col-xs-6" id="contact-form">
-			Right
+		<div class="row">
+			<div class="col-xs-6" id="contact-list">
+				Left
+			</div>
+			<div class="col-xs-6" id="contact-form">
+				Right
+			</div>
 		</div>
 	</div>
-	<script type='text/javascript' src='@routes.Assets.versioned("scripts/vendor/jquery-2.1.3.js")'></script>
-	<script type='text/javascript' src='@routes.Assets.versioned("scripts/vendor/lodash.js")'></script>
-	<script type='text/javascript' src='@routes.Assets.versioned("scripts/vendor/backbone.js")'></script>
-	<script type='text/javascript' src='@routes.Assets.versioned("scripts/vendor/backbone.marionette.js")'></script>
-
-	<script type='text/javascript'>
-		window.log = function() {
-			return console.log.apply(console, arguments);
-		}
-	</script>
-
-	<script type='text/javascript' src='@routes.Assets.versioned("scripts/vendor/require.js")'></script>
-	<script type='text/javascript'>
-		require.config({
-			baseUrl: '@routes.Assets.versioned("scripts")',
-			paths: {
-				hbs: 'vendor/hbs'
-			},
-			hbs: {
-				helpers: true,
-				i18n: false,
-				templateExtension: 'hbs',
-				partialsUrl: ''
-			}
-		});
-	</script>
-
-	<script type='text/javascript'>
-		require(['app'], function(App){
-			log('Before start app');
-		});
-	</script>
 </body>
 </html>

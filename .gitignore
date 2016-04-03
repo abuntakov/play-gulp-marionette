@@ -3,6 +3,7 @@
 /project/target
 /project/project
 /project/node_modules
+node_modules
 .session
 *.log
 bower_components
