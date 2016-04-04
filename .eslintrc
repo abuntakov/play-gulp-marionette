@@ -6,6 +6,10 @@
 		"semi": [2, "always"]
 	},
 
+	"ecmaFeatures": {
+		"modules": true
+	},
+
 	"env": {
 		"es6": true,
 		"browser": true,

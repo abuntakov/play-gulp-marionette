@@ -9,11 +9,7 @@ object Webpack {
 			var process: Option[Process] = None
 
 			override def beforeStarted(): Unit = {
-				Process("webpack", base).run
-			}
-
-			override def afterStarted(addr: InetSocketAddress): Unit = {
-				process = Some(Process("webpack --watch", base).run)
+				Process("webpack --watch", base).run
 			}
 
 			override def afterStopped(): Unit = {
@@ -24,4 +20,13 @@ object Webpack {
 
 		WebpackProcess
 	}
+
+   def dist(base: File) = {
+     val process: ProcessBuilder = Process("webpack", base, "PROD_ENV" -> "true")
+      println(s"Will run: ${process.toString} in ${base.getPath}")
+      process.run().exitValue() match {
+        case 0 => 0
+        case code => throw new Exception(s"webpack failed with code=$code")
+      }
+   }
 }
