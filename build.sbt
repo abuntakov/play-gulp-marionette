@@ -22,7 +22,7 @@ scalaVersion := "2.11.8"
 libraryDependencies ++= Seq(
   "org.scalikejdbc" %% "scalikejdbc-play-initializer" % "2.5.0",
   "org.flywaydb" %% "flyway-play" % "3.0.0",
-  "ch.qos.logback" % "logback-classic" % "1.1.6")
+  "ch.qos.logback" % "logback-classic" % "1.1.7")
 
 stage <<= stage dependsOn webpack
 
