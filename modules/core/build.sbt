@@ -16,6 +16,7 @@ libraryDependencies ++= Seq(
 libraryDependencies += "com.typesafe.play" %% "play-json" % "2.5.3"
 
 libraryDependencies ++= Seq(
+  "org.scalatest" %% "scalatest" % "2.2.6" % "test",
   "org.scalikejdbc" %% "scalikejdbc-test" % "2.4.0" % "test")
 
 libraryDependencies ~= { _.map(_.exclude("org.slf4j", "slf4j-simple")) }

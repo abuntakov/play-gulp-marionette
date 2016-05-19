@@ -59,10 +59,16 @@ package object models {
     }
   }
 
+
+  //------------------------ Parameter Binder Factory -------------
+
+
+
+
   //-------------------------- Wrapper --------------------------
 
   trait FieldWrapper[T] {
-    def wrap(field: T): Any
+    def wrap(field: T): ParameterBinder
   }
 
   object IntListFieldWrapper extends FieldWrapper[List[Int]] {
@@ -102,14 +108,16 @@ package object models {
 
     def wrapEntity(entity: T, allowedFields: Seq[String])(implicit wrappers: FieldWrappers) = {
       convertToMap(entity).filterKeys(allowedFields.contains).map {
-        case(fieldName, Some(fieldValue)) => column.field(fieldName) -> wrapField(fieldName, fieldValue)
-        case(fieldName, None) => column.field(fieldName) -> None
-        case(fieldName, fieldValue) => column.field(fieldName) -> wrapField(fieldName, fieldValue)
+        case(fieldName, Some(fieldValue)) => ( column.field(fieldName), wrapField(fieldName, fieldValue) )
+        case(fieldName, None)             => ( column.field(fieldName), ParameterBinderFactory.noneParameterBinderFactory(None) )
+        case(fieldName, fieldValue)       => ( column.field(fieldName), wrapField(fieldName, fieldValue) )
       }.toArray
     }
 
-    def wrapField[F](fieldName: String, fieldValue: F)(implicit wrappers: FieldWrappers): Any = {
-      wrappers.get(fieldName).map(_.asInstanceOf[FieldWrapper[F]].wrap(fieldValue)).getOrElse(fieldValue)
+    def wrapField[F](fieldName: String, fieldValue: F)(implicit wrappers: FieldWrappers): ParameterBinder = {
+      wrappers.get(fieldName).map { w =>
+        w.asInstanceOf[FieldWrapper[F]].wrap(fieldValue)
+      } getOrElse ParameterBinderFactory.asisParameterBinderFactory(fieldValue)
     }
 
     protected def apply(c: SyntaxProvider[T])(rs: WrappedResultSet): T = apply(c.resultName)(rs)
@@ -183,7 +191,7 @@ package object models {
       }
     }
     def unique[T](entityWrapper: EntityWrapper[T])(fieldName: String, fieldValue:Any): Errors = DB readOnly { implicit session =>
-      entityWrapper.countBy(sqls.eq(entityWrapper.resultName.field(fieldName), fieldValue)) match {
+      entityWrapper.countBy(sqls.eq(entityWrapper.resultName.field(fieldName), fieldValue)(ParameterBinderFactory.asisParameterBinderFactory)) match {
         case 0 => NoErrors
         case _ => Seq( Error(fieldName, "unique", "This field should be unique") )
       }

@@ -45,13 +45,22 @@ object Application extends App {
   logger.info(s"Updated contact: $updatedContact")
   
 
-  var reqErrors = ContactValidator.validate(Contact(NoId, null, null, None), Contact.entityFields diff Seq("id", "email", "location"), true)
-  
-  logger.info(s"Errors: $reqErrors")
+  {
+    val reqErrors = ContactValidator.validate(Contact(NoId, null, null, None), Contact.entityFields diff Seq("id", "email", "location"), checkForRequire = true)
+    logger.info(s"Errors: $reqErrors")
+  }
 
-  reqErrors = ContactValidator.validate(Contact(NoId, null, null, None, Some("shor")), Contact.entityFields diff Seq("id", "email", "location"), true)
-  
-  logger.info(s"Errors: $reqErrors")
+  {
+    val reqErrors = ContactValidator.validate(Contact(NoId, null, null, None, Some("shor")), Contact.entityFields diff Seq("id", "email", "location"), checkForRequire = true)
+    logger.info(s"Errors: $reqErrors")
+  }
+
+  {
+    val reqErrors = ContactValidator.validate(Contact.apply(NoId, "test@email.com", null, None, Some("shor")), Contact.entityFields diff Seq("id", "location"), checkForRequire = true)
+    logger.info(s"Errors: $reqErrors")
+  }
+
+
 
 
   DBs.closeAll()
