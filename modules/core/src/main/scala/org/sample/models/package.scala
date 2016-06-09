@@ -5,26 +5,10 @@ import java.sql.ResultSet
 import org.postgresql.util.PGobject
 import play.api.libs.json.{Json, JsValue}
 import scalikejdbc._
+import helpers.ClassHelper._
 
 package object models {
   val NoId = -1L
-
-  //------------------------ Helpers -------------------------
-
-  /** without inheritable fields */
-  def extractFieldNames(clazz: Class[_]): Seq[String] = {
-    clazz.getDeclaredFields.filterNot(_.isSynthetic).map(_.getName)
-  }
-
-  /** without inheritable fields */
-  def convertToMap[T](obj: T) = {
-    val fields = obj.getClass.getDeclaredFields.filterNot(_.isSynthetic)
-
-    (Map[String, Any]() /: fields) { (result, field) =>
-      field.setAccessible(true)
-      result + (field.getName -> field.get(obj))
-    }
-  }
 
   //------------------------ Type binders ----------------------
 
@@ -107,7 +91,7 @@ package object models {
     type FieldWrappers = Map[String, FieldWrapper[_]]
 
     def wrapEntity(entity: T, allowedFields: Seq[String])(implicit wrappers: FieldWrappers) = {
-      convertToMap(entity).filterKeys(allowedFields.contains).map {
+      convertToTypeMap(entity).filterKeys(allowedFields.contains).map {
         case(fieldName, Some(fieldValue)) => ( column.field(fieldName), wrapField(fieldName, fieldValue) )
         case(fieldName, None)             => ( column.field(fieldName), ParameterBinderFactory.noneParameterBinderFactory(None) )
         case(fieldName, fieldValue)       => ( column.field(fieldName), wrapField(fieldName, fieldValue) )
@@ -128,6 +112,10 @@ package object models {
       insert.into(this).namedValues( wrapEntity(entity, definedFields intersect creatableFields):_ * )
     }.updateAndReturnGeneratedKey().apply()
 
+    def createAndGet(entity: T, definedFields: Seq[String] = entityFields)(implicit session: DBSession = autoSession): T = {
+      find( create(entity, definedFields) ).get
+    }
+
     def update(entity: T, id: Long, definedFields: Seq[String] = entityFields)(implicit session: DBSession = autoSession) = withSQL {
       QueryDSL.update(this).set( wrapEntity(entity, definedFields intersect updatableFields):_ *  ).where.eq(column.field("id"), id)
     }.update().apply()
@@ -137,7 +125,7 @@ package object models {
     }.map(rs => rs.long(1)).single().apply().get
 
     def countBy(where: SQLSyntax)(implicit session: DBSession = ReadOnlyAutoSession): Long = withSQL {
-      select(sqls.count).from(tableAlias).where.append(sqls"${where}")
+      select(sqls.count).from(tableAlias).where.append(sqls"$where")
     }.map(rs => rs.long(1)).single().apply().get
 
     def find(id: Long)(implicit session: DBSession = ReadOnlyAutoSession): Option[T] = withSQL {
@@ -145,9 +133,12 @@ package object models {
     }.map(this(resultName)).single().apply
 
     def findBy(where: SQLSyntax)(implicit session: DBSession = ReadOnlyAutoSession): List[T] = withSQL {
-      select.from(tableAlias).where.append(sqls"${where}")
+      select.from(tableAlias).where.append(sqls"$where")
     }.map(this(resultName)).list().apply()
 
+    def findOneBy(where: SQLSyntax)(implicit session: DBSession = ReadOnlyAutoSession): Option[T] = withSQL {
+      select.from(tableAlias).where.append(sqls"$where")
+    }.map(this(resultName)).single().apply()
 
   }
 
@@ -213,7 +204,7 @@ package object models {
       else
         NoErrors
 
-      convertToMap(entity).filterKeys(definedFields.contains).flatMap {
+      convertToTypeMap(entity).filterKeys(definedFields.contains).flatMap {
         case (fieldName, None) => NoErrors
         case (fieldName, Some(fieldValue)) => validate(fieldName,fieldValue)
         case (fieldName, fieldValue) => validate(fieldName,fieldValue)

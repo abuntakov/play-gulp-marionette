@@ -2,6 +2,7 @@ package org.sample.models
 
 import play.api.libs.json.JsValue
 import scalikejdbc._
+import org.sample.helpers.ClassHelper._
 
 case class Contact(
   id: Long = NoId,
