@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo "Fooo"
+exit 1

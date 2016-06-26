@@ -17,5 +17,11 @@
 		"node": true
 	},
 
+	/* parserOpptions: { */
+	/* 	"ecmaFeatures": { */
+	/* 		sourceType: "module" */
+	/* 	} */
+	/* }, */
+
 	"extends": "eslint:recommended"
 }
