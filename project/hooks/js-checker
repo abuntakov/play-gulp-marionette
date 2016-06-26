@@ -6,8 +6,8 @@ if [ -s ${ROOT_DIR}/.eslintrc ]; then
 
 	files=$(git diff --cached --name-only --diff-filter=ACM | grep "^frontend/.*.js$")
 
-	# ESLINT="${ROOT_DIR}/node_modules/.bin/eslint"
-	ESLINT="eslint"
+	ESLINT="${ROOT_DIR}/node_modules/.bin/eslint"
+	# ESLINT="eslint"
 
 	for file in ${files}; do
 		result=$(${ESLINT} ${file})
