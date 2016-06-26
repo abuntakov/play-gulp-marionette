@@ -1,9 +1,9 @@
 db:
-   image: mdillon/postgis
-   ports:
-      - "5432:5432"
-   environment:
-      - POSTGRES_DB=play
-      - POSTGRES_PASSWORD=secret
+  image: mdillon/postgis
+  ports:
+    - "5432:5432"
+  environment:
+    - POSTGRES_DB=play
+    - POSTGRES_PASSWORD=secret
 redis:
-   image: redis
+  image: redis

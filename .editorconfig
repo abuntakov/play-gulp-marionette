@@ -21,7 +21,7 @@ indent_size = 3
 indent_style = tab
 indent_size = 3
 
-[build.sbt]
+[./**.sbt]
 indent_style = tab
 indent_size = 3
 
@@ -30,6 +30,10 @@ indent_style = tab
 indent_size = 3
 
 # Matches the exact files either package.json
-[{package.json}]
+[package.json]
+indent_style = space
+indent_size = 2
+
+[./**.yml]
 indent_style = space
 indent_size = 2
