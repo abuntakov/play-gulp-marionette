@@ -21,6 +21,10 @@ indent_size = 3
 indent_style = tab
 indent_size = 3
 
+[build.sbt]
+indent_style = tab
+indent_size = 3
+
 [app/**.html]
 indent_style = tab
 indent_size = 3
