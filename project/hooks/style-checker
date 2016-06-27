@@ -1,0 +1,30 @@
+#!/bin/bash
+
+ROOT_DIR=$(git rev-parse --show-toplevel)
+if [ -s ${ROOT_DIR}/.stylelintrc ]; then
+	echo -e "\nValidating Style:\n"
+
+	files=$(git diff --cached --name-only --diff-filter=ACM | grep "^frontend/.*.scss$")
+
+	STYLELINT="${ROOT_DIR}/node_modules/.bin/stylelint"
+	LINTOPT="--syntax scss"
+
+	for file in ${files}; do
+		result=$(${STYLELINT} ${file} ${LINTOPT})
+		if [ $? -eq 0 ]; then
+			echo -e "\t\033[32mStyleLint Passed: ${file}\033[0m"
+		else
+			echo -e "\t\033[31mStyleLint Failed: ${file}\033[0m ${result}"
+			pass=false
+		fi
+	done
+
+	echo -e "\nStyle validation complete\n"
+
+	if ! $pass; then
+		echo -e "\033[41mCOMMIT FAILED:\033[0m Your commit contains files that should pass StyleLint but do not. Please fix the StyleLint errors and try again.\n"
+		exit 1
+	else
+		echo -e "\033[42mCOMMIT SUCCEEDED\033[0m\n"
+	fi
+fi

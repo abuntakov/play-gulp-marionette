@@ -4,10 +4,12 @@
   "description": "",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "jschecker": "./project/hooks/js-checker"
+    "jschecker": "./project/hooks/js-checker",
+    "stylechecker": "./project/hooks/style-checker"
   },
   "pre-commit": [
-    "jschecker"
+    "jschecker",
+    "stylechecker"
   ],
   "author": "Alexander Buntakov",
   "license": "ISC",
@@ -31,6 +33,7 @@
     "sass-loader": "^3.2.0",
     "style-loader": "^0.13.1",
     "stylelint": "^6.7.1",
+    "stylelint-config-standard": "^9.0.0",
     "url-loader": "^0.5.7",
     "webpack": "^1.12.14"
   },
