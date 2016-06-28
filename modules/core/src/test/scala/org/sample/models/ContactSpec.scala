@@ -82,13 +82,23 @@ class ContactSpec extends DbUnitSpec with AutoRollback {
 	}
 
 	it should "not pass with already existing email" in { implicit session =>
+
 		val contact = Contact(
-			email = "john@gmail.com",
+			email = "mike@gmail.com",
 			location = Location(59.2392, 32.2525),
 			boundary = None
 		)
 
+		val cid = DB localTx  { s =>
+			Contact.create(contact, Contact.creatableFields)(s)
+		}
+
 		val errors = ContactValidator.validate(contact, Seq("email", "location", "boundary"))
+
+		DB localTx { s =>
+
+		}
+
 		errors should have size 1
 		errors.head should matchPattern { case Error("email", "unique", _) => }
 	}

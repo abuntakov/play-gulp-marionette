@@ -1,6 +1,7 @@
 package org.sample.models
 
 import org.sample.UnitSpec
+import org.sample.helpers.ClassHelper.extractFieldNames
 
 class PackageSpec extends UnitSpec {
 

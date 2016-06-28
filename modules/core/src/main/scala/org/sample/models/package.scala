@@ -112,6 +112,10 @@ package object models {
 			insert.into(this).namedValues( wrapEntity(entity, definedFields intersect creatableFields):_ * )
 		}.updateAndReturnGeneratedKey().apply()
 
+		def delete(id: Long)(implicit session: DBSession = autoSession) = withSQL {
+			deleteFrom(this).where.eq(column.id, id)
+		}.update().apply()
+
 		def createAndGet(entity: T, definedFields: Seq[String] = entityFields)(implicit session: DBSession = autoSession): T = {
 			find( create(entity, definedFields) ).get
 		}
