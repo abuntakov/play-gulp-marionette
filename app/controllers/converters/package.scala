@@ -8,4 +8,5 @@ package object converters {
 
 	implicit val boundaryFormat = Json.format[Boundary]
 
+	type Model[T] = (T, Seq[String])
 }

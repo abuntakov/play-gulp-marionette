@@ -1,21 +1,26 @@
 package controllers
 
-import org.sample.models.Contact
-import converters.ContactJson.contactReader
-import play.api.mvc.{Action, Controller}
-import play.api.libs.json.{JsObject, JsSuccess}
-import play.api.Logger
+import javax.inject.Inject
 
-class Contacts extends Controller {
+import controllers.converters.Model
+import org.sample.models.{Contact, ContactValidator}
+import converters.ContactJson.contactWithFieldsReader
+import play.api.mvc.{Action, Controller}
+import play.api.Logger
+import errors.createResponseError
+import play.api.i18n.{I18nSupport, MessagesApi}
+
+class Contacts @Inject()(val messagesApi: MessagesApi) extends Controller with I18nSupport {
 	val logger = Logger(this.getClass)
 
 	def update(id: Long) = Action(parse.json) { implicit request =>
-		val js = request.body
+		val (contact, fields) = request.body.as[Model[Contact]]
 
-		logger.info("hello world")
-
-		logger.info(js.asInstanceOf[JsObject].keys.mkString(","))
-
-		Ok
+		ContactValidator.validate(contact, fields) match {
+			case Nil =>
+				Contact.update(contact, id, fields)
+				Ok
+			case errors => createResponseError(errors)
+		}
 	}
 }

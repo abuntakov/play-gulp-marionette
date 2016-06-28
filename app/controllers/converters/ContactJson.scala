@@ -18,9 +18,8 @@ object ContactJson {
 		((JsPath \ "categories").read(Reads.optionNoError[JsValue]) or Reads.pure(null.asInstanceOf[Option[JsValue]]))
 	)(Contact.apply _)
 
-
-	implicit val contactWithFieldsReader: Reads[(Contact, Seq[String])] = new Reads[(Contact, Seq[String])] {
-		override def reads(json: JsValue): JsResult[(Contact, Seq[String])] = {
+	implicit val contactWithFieldsReader: Reads[Model[Contact]] = new Reads[Model[Contact]] {
+		override def reads(json: JsValue): JsResult[Model[Contact]] = {
 			json.validate[Contact].map { contact =>
 				(contact, json.asInstanceOf[JsObject].keys.toSeq)
 			}

@@ -1,0 +1,3 @@
+page.index.title=Welcome to Site
+
+response.error.message.validation.error="Validation error"
