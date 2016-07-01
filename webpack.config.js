@@ -1,19 +1,27 @@
 'use strict';
 
+require('babel-polyfill');
+
 const PROD = JSON.parse(process.env.PROD_ENV || '0');
 
 let webpack      = require('webpack');
+let path         = require('path');
 let precss       = require('precss');
 let autoprefixer = require('autoprefixer');
 let assetsPath   = path.resolve(__dirname, './public/dist');
+let contextPath  = path.resolve(__dirname, './frontend');
 
 let ExtractTextPlugin = require('extract-text-webpack-plugin');
 
+/**
+'bootstrap-loader/extractStyles' - for extract css to single file
+**/
+
 module.exports = {
-	context: path.resolve(__dirname, './frontend'),
+	context: contextPath,
 
 	entry: {
-		'style': ['bootstrap-loader', './styles'],
+		'theme': ['bootstrap-loader/extractStyles'],
 		'main': './client'
 	},
 
@@ -32,7 +40,13 @@ module.exports = {
 			loader: ExtractTextPlugin.extract('style','css!postcss!sass')
 		},{
 			test: /\.js$/,
+			include: [contextPath],
 			loader: 'babel?presets[]=es2015'
+		},{
+			test: /\.jsx$/,
+			include: [contextPath],
+			loader: 'babel',
+			plugins: ['transform-runtime']
 		}]
 	},
 
@@ -41,7 +55,9 @@ module.exports = {
 	},
 
 	plugins: [
-		new ExtractTextPlugin('styles.css')
+		new webpack.optimize.OccurenceOrderPlugin(),
+		new webpack.NoErrorsPlugin(),
+		new ExtractTextPlugin('theme.css', { allChunks: true })
 	]
 };
 

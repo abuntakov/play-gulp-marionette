@@ -22,7 +22,7 @@ object Webpack {
 	}
 
 	def dist(base: File) = {
-		val process: ProcessBuilder = Process("webpack", base, "PROD_ENV" -> "true")
+		val process: ProcessBuilder = Process("node_modules/.bin/webpack", base, "PROD_ENV" -> "true")
 		println(s"Will run: ${process.toString} in ${base.getPath}")
 		process.run().exitValue() match {
 			case 0 => 0

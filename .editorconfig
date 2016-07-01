@@ -9,7 +9,7 @@ trim_trailing_whitespace = true
 charset = utf-8
 
 # Indentation override for all JS under lib directory
-[frontend/**.js]
+[frontend/**.{js,jsx}]
 indent_style = tab
 indent_size = 3
 

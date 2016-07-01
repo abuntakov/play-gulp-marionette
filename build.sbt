@@ -1,7 +1,7 @@
 import Webpack._
 import play.sbt.PlayImport.PlayKeys.playRunHooks
 
-playRunHooks += Webpack(baseDirectory.value)
+//playRunHooks += Webpack(baseDirectory.value)
 
 // lazy val webpack = Webpack.dist(baseDirectory.value)
 val webpack = taskKey[Unit]("Webpack task")

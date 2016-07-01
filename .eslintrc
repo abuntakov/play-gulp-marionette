@@ -1,14 +1,28 @@
 {
+	"extends": "eslint:recommended",
+
 	"rules": {
 		"quotes": [2, "single"],
 		"linebreak-style": [2, "unix"],
 		"semi": [2, "always"],
-		"indent": ["error", "tab"]
+		"indent": ["error", "tab"],
+
+		"import/default": 0,
+		"import/no-duplicates": 0,
+		"import/named": 0,
+		"import/namespace": 0,
+		"import/no-unresolved": 0,
+		"import/no-named-as-default": 2
 	},
 
 	"ecmaFeatures": {
-		"modules": true
+		"modules": true,
+		"jsx": true
 	},
+
+	"plugins": [
+		"react", "import"
+	],
 
 	"env": {
 		"es6": true,
@@ -18,11 +32,9 @@
 		"node": true
 	},
 
-	/* parserOpptions: { */
-	/* 	"ecmaFeatures": { */
-	/* 		sourceType: "module" */
-	/* 	} */
-	/* }, */
+	"parserOptions": {
+        "sourceType": "module"
+    }
 
-	"extends": "eslint:recommended"
+
 }
