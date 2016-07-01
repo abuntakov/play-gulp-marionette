@@ -27,7 +27,7 @@ libraryDependencies ++= Seq(
 
 stage <<= stage dependsOn webpack
 
-cleanFiles <+= baseDirectory { base => base / "public" }
+cleanFiles <+= baseDirectory { base => base / "public" / "dist" }
 
 pipelineStages := Seq(digest, gzip)
 

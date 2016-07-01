@@ -5,24 +5,25 @@ const PROD = JSON.parse(process.env.PROD_ENV || '0');
 let webpack      = require('webpack');
 let precss       = require('precss');
 let autoprefixer = require('autoprefixer');
+let assetsPath   = path.resolve(__dirname, './public/dist');
 
 let ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = {
-	context: __dirname + '/frontend',
+	context: path.resolve(__dirname, './frontend'),
 
 	entry: {
 		'style': ['bootstrap-loader', './styles'],
-		'app-main': './applications/main'
+		'main': './client'
 	},
 
 	output: {
-		path: __dirname + '/public',
+		path: assetsPath,
 		filename: '[name].js'
 	},
 
 	resolve: {
-		extensions: ['', '.js', '.scss']
+		extensions: ['', '.js', '.jsx', '.scss']
 	},
 
 	module: {
