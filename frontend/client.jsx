@@ -7,4 +7,4 @@ import { App } from './containers'
 render(
 	<App />,
 	document.getElementById('root')
-)
+);
