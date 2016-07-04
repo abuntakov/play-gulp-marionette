@@ -1,12 +1,12 @@
 #!/bin/bash
 
 ROOT_DIR=$(git rev-parse --show-toplevel)
-if [ -s ${ROOT_DIR}/.eslintrc ]; then
+if [ -s ${ROOT_DIR}/.eslintrc ] || [ -s ${ROOT_DIR}/.eslintrc.json ]; then
 	echo -e "\nValidating JavaScript:\n"
 
-	files=$(git diff --cached --name-only --diff-filter=ACM | grep "^frontend/.*.js$")
+	files=$(git diff --cached --name-only --diff-filter=ACM | grep -E "^frontend/.*\.jsx?$")
 
-	ESLINT="${ROOT_DIR}/node_modules/.bin/eslint"
+	ESLINT="${ROOT_DIR}/node_modules/.bin/eslint -c .eslintrc.json"
 	# ESLINT="eslint"
 
 	for file in ${files}; do
