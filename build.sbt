@@ -25,6 +25,8 @@ libraryDependencies ++= Seq(
 	"ch.qos.logback" % "logback-classic" % "1.1.7"
 )
 
+libraryDependencies += "com.thedeanda" % "lorem" % "2.0"
+
 stage <<= stage dependsOn webpack
 
 cleanFiles <+= baseDirectory { base => base / "public" / "dist" }

@@ -140,6 +140,10 @@ package object models {
 			select.from(tableAlias).where.append(sqls"$where")
 		}.map(this(resultName)).list().apply()
 
+		def findAll(implicit session: DBSession = ReadOnlyAutoSession): List[T] = withSQL {
+			select.from(tableAlias)
+		}.map(this(resultName)).list().apply()
+
 		def findOneBy(where: SQLSyntax)(implicit session: DBSession = ReadOnlyAutoSession): Option[T] = withSQL {
 			select.from(tableAlias).where.append(sqls"$where")
 		}.map(this(resultName)).single().apply()

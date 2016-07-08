@@ -7,6 +7,8 @@ import play.api.libs.functional.syntax._
 
 object ContactJson {
 
+	implicit val contactWriter: Writes[Contact] = Json.writes[Contact]
+
 	implicit val contactReader: Reads[Contact] = (
 		((JsPath \ "id").read[Long] or Reads.pure(null.asInstanceOf[Long])) and
 		((JsPath \ "email").read[String] or Reads.pure(null.asInstanceOf[String])) and

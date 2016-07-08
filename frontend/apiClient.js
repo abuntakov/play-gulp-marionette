@@ -9,8 +9,10 @@ function formatUrl(path) {
 
 export default class ApiClient {
 	constructor() {
+		const self = this
+
 		function initMethods(method) {
-			this[method] = (path, {params, data} = {}) => new Promise((resolve, reject) => {
+			self[method] = (path, {params, data} = {}) => new Promise((resolve, reject) => {
 				const request = superagent[method](formatUrl(path))
 
 				if (params) {
