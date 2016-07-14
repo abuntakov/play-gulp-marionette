@@ -9,8 +9,15 @@ class Contacts extends Component {
 		return `/contacts/${id}`
 	}
 
+	componentDidMount() {
+		console.log('parent mountj')
+		this.props.contactActions.loadContacts()
+	}
+
 	render() {
 		const { contacts } = this.props
+		console.log('root')
+		console.log(this.props)
 		// const { getContacts } = this.props.contactActions
 		return (
 			<div>

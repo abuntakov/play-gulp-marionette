@@ -9,15 +9,17 @@ import {Router, browserHistory} from 'react-router'
 import getRoutes from './routes'
 
 const client = new ApiClient()
-const store = configureStore(client, {
-	contacts: [{
+const store = configureStore(client, { contacts: {} })
+
+/*
+contacts: [{
 		id: 1,
 		firstName: 'Mike'
 	}, {
 		id: 2,
 		firstName: 'John'
 	}]
-})
+*/
 
 const component = (
 	<Router history={browserHistory}>
