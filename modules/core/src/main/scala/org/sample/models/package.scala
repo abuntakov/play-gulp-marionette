@@ -109,6 +109,7 @@ package object models {
 		protected def apply(c: ResultName[T])(rs: WrappedResultSet): T
 
 		def create(entity: T, definedFields: Seq[String] = entityFields)(implicit session: DBSession = autoSession): Long = withSQL {
+			assert(definedFields.nonEmpty, "Defined fields should be not empty")
 			insert.into(this).namedValues( wrapEntity(entity, definedFields intersect creatableFields):_ * )
 		}.updateAndReturnGeneratedKey().apply()
 
@@ -121,6 +122,7 @@ package object models {
 		}
 
 		def update(entity: T, id: Long, definedFields: Seq[String] = entityFields)(implicit session: DBSession = autoSession) = withSQL {
+			assert(definedFields.nonEmpty, "Defined fields should be not empty")
 			QueryDSL.update(this).set( wrapEntity(entity, definedFields intersect updatableFields):_ *  ).where.eq(column.field("id"), id)
 		}.update().apply()
 
