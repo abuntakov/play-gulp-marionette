@@ -10,7 +10,7 @@ libraryDependencies ++= Seq(
   "org.scalikejdbc" %% "scalikejdbc-syntax-support-macro" % "2.4.0",
   "joda-time" % "joda-time" % "2.9.3",
   "org.postgresql" % "postgresql" % "9.4.1208",
-  "org.postgis" % "postgis-jdbc" % "1.3.3",
+  "org.postgis" % "postgis-jdbc" % "1.3.3" exclude("org.postgresql", "postgresql"),
   "ch.qos.logback" % "logback-classic" % "1.1.7")
 
 libraryDependencies += "com.typesafe.play" %% "play-json" % "2.5.3"
